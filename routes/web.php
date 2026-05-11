@@ -8,6 +8,7 @@ use App\Http\Controllers\TopUpController;
 use App\Http\Controllers\SavingController;
 use App\Http\Controllers\PlannerController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\Api\SavingApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,5 +84,8 @@ Route::middleware('auth')->group(function () {
     // Fitur Transfer
     Route::get('/transfer', [App\Http\Controllers\TransferController::class, 'index']);
     Route::post('/transfer/process', [App\Http\Controllers\TransferController::class, 'process']);
+
+    // Endpoint khusus untuk dicek guru
+    Route::apiResource('saving', SavingApiController::class);
 
 });
