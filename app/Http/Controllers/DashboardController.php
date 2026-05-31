@@ -19,12 +19,21 @@ class DashboardController extends Controller
         $expense = Transaction::where('user_id', $userId)->where('type', 'expense')->where('status', 'success')->sum('amount');
         $totalBalance = $income - $expense;
 
-        // 2. Data Grafik Mood
-        $chartData = Transaction::where('user_id', $userId)
-            ->where('type', 'expense')
-            ->select('mood', DB::raw('sum(amount) as total'))
-            ->groupBy('mood')
-            ->pluck('total', 'mood')->toArray();
+        // 2. Data Grafik Mood (Disederhanakan untuk pemula)
+        $expenses = Transaction::where('user_id', $userId)->where('type', 'expense')->get();
+        
+        $chartData = [
+            'Happy' => 0,
+            'Stress' => 0,
+            'Bored' => 0,
+            'FOMO' => 0
+        ];
+
+        foreach ($expenses as $expenseItem) {
+            if (isset($chartData[$expenseItem->mood])) {
+                $chartData[$expenseItem->mood] = $chartData[$expenseItem->mood] + $expenseItem->amount;
+            }
+        }
 
         // 3. API Data Market
         try {
@@ -56,6 +65,6 @@ class DashboardController extends Controller
             $newsList = [];
         }
 
-        return view('index', compact('totalBalance', 'chartData', 'usdToIdr', 'btcToIdr', 'goldPrice', 'newsList'));
+        return view('index', compact('totalBalance', 'income', 'expense', 'chartData', 'usdToIdr', 'btcToIdr', 'goldPrice', 'newsList'));
     }
 }

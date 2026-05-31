@@ -20,17 +20,17 @@ class TopUpController extends Controller
             'payment_method' => 'required'
         ]);
 
-        // Simpan ke tabel transactions sebagai 'income'
-        Transaction::create([
-            'user_id' => Auth::id(),
-            'type' => 'income',
-            'category' => 'Topup',
-            'amount' => $request->amount,
-            'payment_method' => $request->payment_method,
-            'status' => 'success', // Kita set success dulu untuk simulasi tanpa Midtrans
-            'description' => 'Top Up Saldo via ' . strtoupper($request->payment_method),
-            'mood' => 'Happy'
-        ]);
+        // Simpan ke tabel transactions sebagai 'income' (Disederhanakan)
+        $transaksiBaru = new Transaction();
+        $transaksiBaru->user_id = Auth::id();
+        $transaksiBaru->type = 'income';
+        $transaksiBaru->category = 'Pemasukan';
+        $transaksiBaru->amount = $request->amount;
+        $transaksiBaru->payment_method = $request->payment_method;
+        $transaksiBaru->status = 'success';
+        $transaksiBaru->description = 'Catat Pemasukan via ' . strtoupper($request->payment_method);
+        $transaksiBaru->mood = 'Happy';
+        $transaksiBaru->save();
 
         return redirect('/')->with('success', 'Top Up berhasil! Saldo kamu bertambah.');
     }

@@ -86,6 +86,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/transfer/process', [App\Http\Controllers\TransferController::class, 'process']);
 
     // Endpoint khusus untuk dicek guru
-    Route::apiResource('saving', SavingApiController::class);
+    Route::apiResource('api/saving', SavingApiController::class);
 
 });

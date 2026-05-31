@@ -49,21 +49,25 @@ class SavingController extends Controller
         }
 
         // 3. JIKA SALDO CUKUP, LANJUTKAN PROSES NABUNG
-        $saving = Saving::where('id', $id)->where('user_id', $userId)->firstOrFail();
+        $saving = Saving::where('id', $id)->where('user_id', $userId)->first();
+        if (!$saving) {
+            return redirect()->back()->with('error', 'Tabungan tidak ditemukan.');
+        }
 
-        DB::transaction(function () use ($request, $saving, $userId) {
-            $saving->increment('current_amount', $request->amount);
+        // Tambah saldo tabungan
+        $saving->current_amount = $saving->current_amount + $request->amount;
+        $saving->save();
 
-            Transaction::create([
-                'user_id' => $userId,
-                'type' => 'expense',
-                'category' => 'Saving',
-                'amount' => $request->amount,
-                'description' => 'Isi celengan: ' . $saving->title,
-                'status' => 'success',
-                'mood' => 'Happy'
-            ]);
-        });
+        // Catat sebagai pengeluaran di tabel transaksi
+        $transaksiBaru = new Transaction();
+        $transaksiBaru->user_id = $userId;
+        $transaksiBaru->type = 'expense';
+        $transaksiBaru->category = 'Saving';
+        $transaksiBaru->amount = $request->amount;
+        $transaksiBaru->description = 'Isi celengan: ' . $saving->title;
+        $transaksiBaru->status = 'success';
+        $transaksiBaru->mood = 'Happy';
+        $transaksiBaru->save();
 
         return redirect('/saving')->with('success', 'Uang berhasil masuk celengan! 💰');
     }
