@@ -340,11 +340,111 @@
             transform: translateY(-4px) scale(1.05);
             background: var(--primary-dark);
         }
+
+        /* ── INTERACTIVE AI CHAT CONTAINER ── */
+        .chat-panel {
+            position: fixed;
+            bottom: 6rem;
+            right: 2.5rem;
+            width: 360px;
+            height: 480px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            z-index: 1001;
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .chat-panel.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        .chat-header {
+            background: var(--sidebar-bg);
+            padding: 0.85rem 1rem;
+            border-top-left-radius: calc(var(--radius-lg) - 1px);
+            border-top-right-radius: calc(var(--radius-lg) - 1px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chat-avatar-ai {
+            width: 30px; height: 30px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; font-weight: 700; color: #fff;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            background: var(--bg-page);
+        }
+        .msg-bot, .msg-user {
+            max-width: 80%;
+            padding: 0.65rem 0.85rem;
+            border-radius: var(--radius-md);
+            font-size: 0.825rem;
+            line-height: 1.4;
+        }
+        .msg-bot {
+            background: var(--card-bg);
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+        .msg-user {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-footer {
+            padding: 0.75rem;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 0.5rem;
+            border-bottom-left-radius: calc(var(--radius-lg) - 1px);
+            border-bottom-right-radius: calc(var(--radius-lg) - 1px);
+        }
+        .chat-footer input {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            background: var(--bg-page);
+            color: var(--text-main);
+            padding: 0.55rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.825rem;
+            outline: none;
+        }
+        .chat-footer input:focus { border-color: var(--primary); }
+        .chat-footer button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 0.85rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        .chat-footer button:hover { background: var(--primary-dark); }
     </style>
 <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
 </head>
 <body>
-    <!-- ── SIDEBAR ── -->
     <aside class="sidebar">
         <div class="sidebar-brand">
             <a href="{{ url('/') }}">Rupia<span>.</span></a>
@@ -406,9 +506,7 @@
         </div>
     </aside>
 
-    <!-- ── MAIN AREA ── -->
     <div class="main-area">
-        <!-- TOPBAR -->
         <header class="topbar">
             <div class="topbar-left">
                 <h1>Halo, {{ Auth::user()->name ?? 'Abdan' }} 👋</h1>
@@ -429,10 +527,8 @@
             </div>
         </header>
 
-        <!-- PAGE CONTENT -->
         <main class="page-content">
 
-            <!-- Anti-Impuls Toggle -->
             <div class="toggle-row">
                 <div class="toggle-info">
                     <h4>Mode Anti-Impuls</h4>
@@ -446,7 +542,6 @@
 
             <div class="main-grid">
                 <section>
-                    <!-- Balance Card -->
                     <div class="balance-card">
                         <div style="position:relative;z-index:1;">
                             <span class="balance-label">Total Saldo</span>
@@ -468,7 +563,6 @@
                         </div>
                     </div>
 
-                    <!-- Shortcut Grid -->
                     <p class="section-title" style="margin-top:1.75rem;">Aksi Cepat</p>
                     <div class="shortcut-grid">
                         <a href="{{ url('/transfer') }}" class="shortcut-item">
@@ -497,7 +591,6 @@
                         </a>
                     </div>
 
-                    <!-- Flow Cash Chart -->
                     <p class="section-title" style="margin-top:1.75rem;">Arus Kas</p>
                     <div class="panel">
                         <div style="position: relative; height: 220px; width: 100%;">
@@ -505,7 +598,6 @@
                         </div>
                     </div>
 
-                    <!-- Berita Terkini -->
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.75rem; margin-bottom:0.875rem;">
                         <p class="section-title" style="margin:0;">Berita Keuangan</p>
                     </div>
@@ -551,10 +643,33 @@
         </main>
     </div>
 
-    <!-- CHATBOT FAB -->
-    <a href="#" class="chatbot-fab" title="Tanya AI">
+    <div class="chatbot-fab" id="chatbotFab" title="Tanya AI">
         <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-    </a>
+    </div>
+
+    <div class="chat-panel" id="chatPanel">
+        <div class="chat-header">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <div class="chat-avatar-ai">AI</div>
+                <div>
+                    <h4 style="margin:0; font-size:0.85rem; font-weight:600; color:#fff;">Rupia AI Assistant</h4>
+                    <span style="font-size:0.65rem; color:rgba(255,255,255,0.65); display:block; margin-top:1px;">Online</span>
+                </div>
+            </div>
+            <button id="closeChatBtn" style="background:none; border:none; color:#fff; cursor:pointer; display:flex; align-items:center;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="msg-bot">Halo! Ada yang bisa saya bantu seputar keuangan atau penggunaan aplikasi Rupia hari ini?</div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Ketik pesan Anda...">
+            <button id="sendChatBtn">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+        </div>
+    </div>
 
     <script>
         // Theme logic
@@ -628,7 +743,69 @@
                 }
             }
         });
+
+        // ── INTERACTIVE AI CHAT LOGIC ──
+        const chatbotFab = document.getElementById('chatbotFab');
+        const chatPanel = document.getElementById('chatPanel');
+        const closeChatBtn = document.getElementById('closeChatBtn');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+        const chatMessages = document.getElementById('chatMessages');
+
+        // Buka Panel Chat
+        chatbotFab.addEventListener('click', (e) => {
+            e.preventDefault();
+            chatPanel.classList.toggle('show');
+        });
+
+        // Tutup Panel Chat
+        closeChatBtn.addEventListener('click', () => {
+            chatPanel.classList.remove('show');
+        });
+
+        // Fungsi Kirim Pesan (UI Simulasi)
+       // Fungsi Kirim Pesan
+function handleSendMessage() {
+    const messageText = chatInput.value.trim();
+    if (messageText === '') return;
+
+    // 1. Munculin pesan kamu di layar chat
+    const userMessageDiv = document.createElement('div');
+    userMessageDiv.className = 'msg-user';
+    userMessageDiv.textContent = messageText;
+    chatMessages.appendChild(userMessageDiv);
+
+    chatInput.value = '';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // 2. Kirim ke Laravel
+    fetch('/send-chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ message: messageText })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // 3. Munculin balasan dari Laravel di layar chat
+        const botMessageDiv = document.createElement('div');
+        botMessageDiv.className = 'msg-bot';
+        botMessageDiv.textContent = data.reply;
+        chatMessages.appendChild(botMessageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// KODE INI WAJIB ADA BIAR TOMBOL BISA DIKLIK / ENTER:
+sendChatBtn.addEventListener('click', handleSendMessage);
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        handleSendMessage();
+    }
+});
     </script>
 </body>
 </html>
-

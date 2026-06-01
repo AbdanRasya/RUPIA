@@ -85,6 +85,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/transfer', [App\Http\Controllers\TransferController::class, 'index']);
     Route::post('/transfer/process', [App\Http\Controllers\TransferController::class, 'process']);
 
+    // 7. Chat AI Widget (Baru ditambahkan)
+    Route::post('/send-chat', [App\Http\Controllers\ChatController::class, 'send']);
+
     // Endpoint khusus untuk dicek guru
     Route::apiResource('api/saving', SavingApiController::class);
 
