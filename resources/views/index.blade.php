@@ -12,9 +12,10 @@
         <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Verifikasi tambahan sebelum transaksi non-esensial.</p>
     </div>
     <label class="switch" style="width:36px; height:20px; position:relative; display:inline-block;">
-        <input type="checkbox" id="impulseToggle" style="opacity:0; width:0; height:0;" {{ Auth::user()->is_anti_impulse_active ? 'checked' : '' }}>
-        <span class="slider" style="position:absolute; cursor:pointer; inset:0; transition:.3s; border-radius:20px;"></span>
-    </label>
+    <input type="checkbox" id="impulseToggle" style="opacity:0; width:0; height:0;" {{ Auth::user()->is_anti_impulse_active ? 'checked' : '' }}>
+    
+    <span class="slider" style="position:absolute; cursor:pointer; inset:0; transition:.3s; border-radius:20px; border: 1px solid #cbd5e1;"></span>
+</label>
 </div>
 
 <div class="main-grid" style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem;">
