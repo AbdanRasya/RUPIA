@@ -11,8 +11,8 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    // AI UBAH: Paksa defaultnya langsung ke mysql, jangan kasih celah ke sqlite
-    'default' => 'mysql',
+    // Gunakan env agar fleksibel (local/dev/prod bisa beda)
+    'default' => env('DB_CONNECTION', 'sqlite'),
 
     /*
     |--------------------------------------------------------------------------
@@ -25,7 +25,25 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            // Pastikan path SQLite selalu absolute (agar konsisten di berbagai runner / CWD)
+            'database' => (function () {
+                $database = env('DB_DATABASE', database_path('database.sqlite'));
+
+                // Special cases
+                if ($database === ':memory:') {
+                    return $database;
+                }
+
+                // Jika path belum absolute, jadikan absolute dari base_path()
+                $isWindowsAbs = is_string($database) && preg_match('/^[A-Za-z]:\\\\\\\\/', $database) === 1;
+                $isUnixAbs = is_string($database) && str_starts_with($database, '/');
+
+                if (! $isWindowsAbs && ! $isUnixAbs) {
+                    return base_path($database);
+                }
+
+                return $database;
+            })(),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
@@ -35,10 +53,10 @@ return [
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
-            
-            // AI UBAH: Kunci mati ke database rupia
-            'database' => 'rupia', 
-            
+
+            // Jangan hard-code nama database di config (pakai env)
+            'database' => env('DB_DATABASE', 'rupia'),
+
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),

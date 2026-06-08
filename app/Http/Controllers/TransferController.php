@@ -4,47 +4,72 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Transaction;
+use App\Models\Wallet;
 use Illuminate\Support\Facades\Auth;
 
 class TransferController extends Controller
 {
     public function index()
     {
-        return view('transfer.index');
+        $wallets = Wallet::where('user_id', Auth::id())->get();
+        return view('transfer.index', compact('wallets'));
     }
 
     public function process(Request $request)
     {
         $request->validate([
-            'destination' => 'required|string',
-            'amount' => 'required|numeric|min:10000',
+            'source_wallet_id' => 'required|exists:wallets,id',
+            'destination_wallet_id' => 'required|exists:wallets,id|different:source_wallet_id',
+            'amount' => 'required|numeric|min:1000',
             'notes' => 'nullable|string'
         ]);
 
         $userId = Auth::id();
+        $sourceWallet = Wallet::where('id', $request->source_wallet_id)->where('user_id', $userId)->firstOrFail();
+        $destWallet = Wallet::where('id', $request->destination_wallet_id)->where('user_id', $userId)->firstOrFail();
 
         // 1. Cek Saldo
-        $income = Transaction::where('user_id', $userId)->where('type', 'income')->where('status', 'success')->sum('amount');
-        $expense = Transaction::where('user_id', $userId)->where('type', 'expense')->where('status', 'success')->sum('amount');
-        $currentBalance = $income - $expense;
-
-        // 2. Tolak jika miskin saldo wkwk
-        if ($request->amount > $currentBalance) {
-            return redirect()->back()->with('error', 'Saldo tidak cukup untuk transfer. Sisa saldo: Rp ' . number_format($currentBalance, 0, ',', '.'));
+        if ($request->amount > $sourceWallet->balance) {
+            return redirect()->back()->with('error', 'Saldo ' . $sourceWallet->name . ' tidak cukup. Sisa: Rp ' . number_format($sourceWallet->balance, 0, ',', '.'));
         }
 
-        // 3. Catat Transfer
+        // 2. Catat Transfer sebagai Expense di dompet asal
         Transaction::create([
             'user_id' => $userId,
+            'wallet_id' => $sourceWallet->id,
+            'reference_wallet_id' => $destWallet->id,
             'type' => 'expense',
             'amount' => $request->amount,
             'category' => 'Transfer',
             'mood' => 'Normal',
-            'description' => 'Transfer ke ' . $request->destination . ' (' . $request->notes . ')',
+            'description' => 'Transfer ke ' . $destWallet->name . ($request->notes ? ' (' . $request->notes . ')' : ''),
             'status' => 'success',
-            'payment_method' => 'Rupia Balance'
+            'payment_method' => $sourceWallet->type,
+            'transaction_date' => now()
+        ]);
+        
+        // 3. Catat Transfer sebagai Income di dompet tujuan
+        Transaction::create([
+            'user_id' => $userId,
+            'wallet_id' => $destWallet->id,
+            'reference_wallet_id' => $sourceWallet->id,
+            'type' => 'income',
+            'amount' => $request->amount,
+            'category' => 'Transfer',
+            'mood' => 'Normal',
+            'description' => 'Transfer dari ' . $sourceWallet->name,
+            'status' => 'success',
+            'payment_method' => $destWallet->type,
+            'transaction_date' => now()
         ]);
 
-        return redirect('/transfer')->with('success', 'Transfer Rp ' . number_format($request->amount, 0, ',', '.') . ' ke ' . $request->destination . ' berhasil cuy! 💸');
+        // 4. Update balance
+        $sourceWallet->balance -= $request->amount;
+        $sourceWallet->save();
+        
+        $destWallet->balance += $request->amount;
+        $destWallet->save();
+
+        return redirect('/transfer')->with('success', 'Transfer Rp ' . number_format($request->amount, 0, ',', '.') . ' ke ' . $destWallet->name . ' berhasil! 💸');
     }
 }

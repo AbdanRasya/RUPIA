@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Transaction;
+use App\Models\Wallet;
+use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -14,57 +16,66 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
-        // 1. Hitung Saldo Real Time
-        $income = Transaction::where('user_id', $userId)->where('type', 'income')->where('status', 'success')->sum('amount');
-        $expense = Transaction::where('user_id', $userId)->where('type', 'expense')->where('status', 'success')->sum('amount');
-        $totalBalance = $income - $expense;
+        // 1. Saldo Real Time dari Wallets
+        $totalBalance = Wallet::where('user_id', $userId)->sum('balance');
 
-        // 2. Data Grafik Mood (Disederhanakan untuk pemula)
-        $expenses = Transaction::where('user_id', $userId)->where('type', 'expense')->get();
+        // 2. Income & Expense Bulan Ini
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
         
-        $chartData = [
-            'Happy' => 0,
-            'Stress' => 0,
-            'Bored' => 0,
-            'FOMO' => 0
-        ];
+        $income = Transaction::where('user_id', $userId)
+            ->where('type', 'income')
+            ->whereBetween('transaction_date', [$startOfMonth, $endOfMonth])
+            ->sum('amount');
+            
+        $expense = Transaction::where('user_id', $userId)
+            ->where('type', 'expense')
+            ->whereBetween('transaction_date', [$startOfMonth, $endOfMonth])
+            ->sum('amount');
 
-        foreach ($expenses as $expenseItem) {
-            if (isset($chartData[$expenseItem->mood])) {
-                $chartData[$expenseItem->mood] = $chartData[$expenseItem->mood] + $expenseItem->amount;
-            }
-        }
+        // 3. Financial Health Score (0-100)
+        // Logika sederhana: 
+        // 50 poin default, +20 jika income > expense, +10 jika ada wallet dengan saldo > 1jt
+        $healthScore = 50;
+        if ($income > $expense && $income > 0) $healthScore += 30;
+        if ($totalBalance > 1000000) $healthScore += 20;
 
-        // 3. API Data Market
-        try {
-            $usdResponse = Http::timeout(3)->get('https://api.exchangerate-api.com/v4/latest/USD');
-            $usdToIdr = $usdResponse->json('rates.IDR') ?? 15500;
-        } catch (\Exception $e) {
-            $usdToIdr = 15500;
-        }
-
-        try {
-            $btcResponse = Http::withHeaders(['User-Agent' => 'Mozilla/5.0'])->timeout(3)->get('https://indodax.com/api/btc_idr/ticker');
-            $btcToIdr = $btcResponse->json('ticker.last') ?? 1000000000;
-
-            $goldResponse = Http::withHeaders(['User-Agent' => 'Mozilla/5.0'])->timeout(3)->get('https://indodax.com/api/xaur_idr/ticker');
-            $goldPrice = $goldResponse->json('ticker.last') ?? 1450000;
-        } catch (\Exception $e) {
-            $btcToIdr = 1000000000;
-            $goldPrice = 1450000;
-        }
+        // 4. Data Grafik Arus Kas 7 Hari Terakhir
+        $labels = [];
+        $incomeData = [];
+        $expenseData = [];
         
-        // 4. API Berita (Waktu tunggu dinaikkan jadi 5 detik)
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i)->format('Y-m-d');
+            $labels[] = Carbon::now()->subDays($i)->format('d M');
+            
+            $incomeData[] = Transaction::where('user_id', $userId)->where('type', 'income')->whereDate('transaction_date', $date)->sum('amount');
+            $expenseData[] = Transaction::where('user_id', $userId)->where('type', 'expense')->whereDate('transaction_date', $date)->sum('amount');
+        }
+
+        // 5. Transaksi Terakhir
+        $recentTransactions = Transaction::where('user_id', $userId)->with('wallet')->orderBy('transaction_date', 'desc')->orderBy('created_at', 'desc')->limit(5)->get();
+
+        // 6. Data API (Berita & Crypto)
+        $usdToIdr = 15500;
+        $btcToIdr = 1000000000;
         $newsList = [];
         try {
-            $newsResponse = Http::timeout(5)->get('https://api-berita-indonesia.vercel.app/cnbc/market/');
+            $usdResponse = Http::timeout(3)->get('https://api.exchangerate-api.com/v4/latest/USD');
+            if($usdResponse->successful()) $usdToIdr = $usdResponse->json('rates.IDR');
+            
+            $btcResponse = Http::timeout(3)->get('https://indodax.com/api/btc_idr/ticker');
+            if($btcResponse->successful()) $btcToIdr = $btcResponse->json('ticker.last');
+            
+            // Gunakan endpoint yang lebih stabil
+            $newsResponse = Http::timeout(4)->get('https://api-berita-indonesia.vercel.app/cnbc/terbaru/');
             if ($newsResponse->successful()) {
                 $newsList = array_slice($newsResponse->json('data.posts') ?? [], 0, 3);
             }
         } catch (\Exception $e) {
-            $newsList = [];
+            // Biarkan fallback bekerja
         }
 
-        return view('index', compact('totalBalance', 'income', 'expense', 'chartData', 'usdToIdr', 'btcToIdr', 'goldPrice', 'newsList'));
+        return view('index', compact('totalBalance', 'income', 'expense', 'healthScore', 'labels', 'incomeData', 'expenseData', 'recentTransactions', 'usdToIdr', 'btcToIdr', 'newsList'));
     }
 }

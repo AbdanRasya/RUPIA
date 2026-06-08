@@ -1,235 +1,125 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rupia | Mall Pembayaran</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap');
-        :root {
-            --sidebar-bg: #1A2744; --sidebar-text: #8FA3C0; --sidebar-active-bg: rgba(255,255,255,0.1); --sidebar-active-text: #FFFFFF; --sidebar-hover-bg: rgba(255,255,255,0.06);
-            --topbar-bg: #FFFFFF; --bg-page: #F4F6FA; --card-bg: #FFFFFF;
-            --primary: #00A550; --primary-light: #E6F7EE; --primary-dark: #007A3B;
-            --accent: #3B82F6; --danger: #EF4444; --text-main: #1A2744; --text-muted: #6B7280; --border-color: #E5E7EB;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08); --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
-            --sidebar-w: 220px; --topbar-h: 60px;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-main); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+@extends('layouts.app')
+@section('title', 'Pembayaran')
+@section('header_title', 'Mall Pembayaran')
+@section('header_subtitle', 'Bayar tagihan dan beli pulsa dengan mudah')
 
-        .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; overflow-y: auto; }
-        .sidebar-brand { padding: 1.5rem 1.25rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
-        .sidebar-brand a { font-size: 1.4rem; font-weight: 700; color: #FFFFFF; text-decoration: none; letter-spacing: -0.5px; }
-        .sidebar-brand span { color: var(--primary); }
-        .sidebar-section-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(143,163,192,0.5); padding: 1.25rem 1.25rem 0.5rem; }
-        .sidebar-nav { padding: 0.5rem 0.75rem; flex: 1; }
-        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.75rem; border-radius: var(--radius-sm); color: var(--sidebar-text); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: all 0.18s ease; margin-bottom: 2px; }
-        .nav-item:hover { background: var(--sidebar-hover-bg); color: #FFFFFF; }
-        .nav-item.active { background: var(--sidebar-active-bg); color: var(--sidebar-active-text); font-weight: 600; }
-        .nav-item.active .nav-icon { color: var(--primary); }
-        .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
-        .sidebar-bottom { padding: 1rem 0.75rem; border-top: 1px solid rgba(255,255,255,0.07); }
-        .sidebar-user { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; }
-        .sidebar-avatar { width: 34px; height: 34px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
-        .sidebar-user-name { font-size: 0.8rem; font-weight: 600; color: #fff; }
-        .sidebar-user-role { font-size: 0.7rem; color: var(--sidebar-text); }
-        .btn-logout-sidebar { width: 100%; margin-top: 0.5rem; background: rgba(239,68,68,0.12); color: #FC8181; border: none; padding: 0.6rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: 0.2s; }
-        .btn-logout-sidebar:hover { background: rgba(239,68,68,0.2); }
+@section('styles')
+<style>
+    /* ── CATEGORY ── */
+    .category-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 1.75rem 0 0.875rem; }
+    .category-label:first-child { margin-top: 0; }
 
-        .main-area { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
-        .topbar { height: var(--topbar-h); background: var(--topbar-bg); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 1.75rem; position: sticky; top: 0; z-index: 50; box-shadow: var(--shadow-sm); }
-        .topbar-left h1 { font-size: 1rem; font-weight: 600; }
-        .topbar-left p { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
-        .topbar-right { display: flex; align-items: center; gap: 1rem; }
-        .topbar-user { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0.75rem 0.35rem 0.35rem; border-radius: 999px; border: 1px solid var(--border-color); background: var(--bg-page); }
-        .topbar-avatar { width: 28px; height: 28px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; }
-        .topbar-name { font-size: 0.8rem; font-weight: 600; }
-        .page-content { padding: 1.75rem; flex: 1; }
+    /* ── PRODUCT GRID ── */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+    .product-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 1.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+    }
+    .product-card:hover { border-color: var(--primary); box-shadow: 0 4px 16px rgba(0,165,80,0.12); transform: translateY(-2px); }
+    .product-icon-wrap { width: 52px; height: 52px; border-radius: 14px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-size: 1.6rem; }
+    .product-name { font-size: 0.875rem; font-weight: 600; color: var(--text-main); }
 
-        /* ── CATEGORY ── */
-        .category-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 1.75rem 0 0.875rem; }
-        .category-label:first-child { margin-top: 0; }
+    /* ── MODALS ── */
+    .pay-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
+    .pay-modal-content { background: var(--card-bg); padding: 2rem; border-radius: var(--radius-lg); width: 90%; max-width: 420px; border: 1px solid var(--border-color); box-shadow: var(--shadow-md); color: var(--text-main); }
+    .list-item-pay { display: flex; justify-content: space-between; align-items: center; padding: 0.875rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 0.625rem; cursor: pointer; transition: 0.18s; }
+    .list-item-pay:hover { border-color: var(--primary); background: var(--primary-light); }
+    .list-item-name { font-weight: 600; font-size: 0.875rem; color: var(--text-main); }
+    .list-item-price { font-weight: 700; color: var(--primary); font-size: 0.875rem; }
+    .custom-input { width: 100%; padding: 0.875rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-page); color: var(--text-main); margin: 0.875rem 0; outline: none; text-align: center; font-weight: 700; font-size: 1rem; font-family: 'Inter', sans-serif; }
+    .custom-input:focus { border-color: var(--primary); }
+</style>
+@endsection
 
-        /* ── PRODUCT GRID ── */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
-        .product-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 1.5rem 1rem;
-            cursor: pointer;
-            transition: all 0.18s ease;
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-        }
-        .product-card:hover { border-color: var(--primary); box-shadow: 0 4px 16px rgba(0,165,80,0.12); transform: translateY(-2px); }
-        .product-icon-wrap { width: 52px; height: 52px; border-radius: 14px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-size: 1.6rem; }
-        .product-name { font-size: 0.875rem; font-weight: 600; color: var(--text-main); }
+@section('content')
+<p class="category-label">📱 Pulsa &amp; Paket Data</p>
+<div class="product-grid">
+    <div class="product-card" onclick="openMenuModal('pulsa')">
+        <div class="product-icon-wrap">📱</div>
+        <div class="product-name">Isi Pulsa</div>
+    </div>
+    <div class="product-card" onclick="openMenuModal('data')">
+        <div class="product-icon-wrap">🌐</div>
+        <div class="product-name">Paket Data</div>
+    </div>
+</div>
 
-        /* ── MODALS ── */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card-bg); padding: 2rem; border-radius: var(--radius-lg); width: 90%; max-width: 420px; border: 1px solid var(--border-color); box-shadow: var(--shadow-md); }
-        .list-item-pay { display: flex; justify-content: space-between; align-items: center; padding: 0.875rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 0.625rem; cursor: pointer; transition: 0.18s; }
-        .list-item-pay:hover { border-color: var(--primary); background: var(--primary-light); }
-        .list-item-name { font-weight: 600; font-size: 0.875rem; }
-        .list-item-price { font-weight: 700; color: var(--accent); font-size: 0.875rem; }
-        .custom-input { width: 100%; padding: 0.875rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-page); color: var(--text-main); margin: 0.875rem 0; outline: none; text-align: center; font-weight: 700; font-size: 1rem; font-family: 'Inter', sans-serif; }
-        .custom-input:focus { border-color: var(--primary); }
-        .btn-submit { width: 100%; background: var(--primary); color: white; padding: 0.875rem; border-radius: var(--radius-sm); border: none; font-weight: 700; cursor: pointer; margin-top: 0.875rem; font-size: 0.9rem; font-family: 'Inter', sans-serif; transition: 0.2s; }
-        .btn-submit:hover { background: var(--primary-dark); }
-        .btn-cancel { width: 100%; background: none; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.75rem; border-radius: var(--radius-sm); margin-top: 0.5rem; cursor: pointer; font-family: 'Inter', sans-serif; }
-    </style>
-<link rel="stylesheet" href="{{ asset('css/theme.css') }}">
-</head>
-<body>
-    <aside class="sidebar">
-        <div class="sidebar-brand"><a href="{{ url('/') }}">Rupia<span>.</span></a></div>
-        <div class="sidebar-section-label">Menu Utama</div>
-        <nav class="sidebar-nav">
-            <a href="{{ url('/') }}" class="nav-item">
-                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                Beranda
-            </a>
-            <a href="{{ url('/saving') }}" class="nav-item">
-                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                Tabungan
-            </a>
-            <a href="{{ url('/education') }}" class="nav-item">
-                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                Edukasi
-            </a>
-            <a href="{{ url('/planner') }}" class="nav-item">
-                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-                Planner
-            </a>
-            <div class="sidebar-section-label" style="padding-left:0;padding-top:1.25rem;">Transaksi</div>
-            <a href="{{ url('/topup') }}" class="nav-item">
-                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Catat Pemasukan
-            </a>
-            <a href="{{ url('/transfer') }}" class="nav-item">
-                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-                Transfer
-            </a>
-            <a href="{{ url('/transaction/create') }}" class="nav-item">
-                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
-                Catat Keluar
-            </a>
-            <a href="{{ url('/pay') }}" class="nav-item active">
-                <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                Pembayaran
-            </a>
-        </nav>
-        <div class="sidebar-bottom">
-            <div class="sidebar-user">
-                <div class="sidebar-avatar">R</div>
-                <div>
-                    <div class="sidebar-user-name">Pengguna</div>
-                    <div class="sidebar-user-role">Member Aktif</div>
-                </div>
-            </div>
+<p class="category-label">🏠 Tagihan Rumah</p>
+<div class="product-grid">
+    <div class="product-card" onclick="openMenuModal('pln')">
+        <div class="product-icon-wrap">⚡</div>
+        <div class="product-name">Token PLN</div>
+    </div>
+    <div class="product-card" onclick="openMenuModal('internet')">
+        <div class="product-icon-wrap">📡</div>
+        <div class="product-name">Internet &amp; TV</div>
+    </div>
+</div>
+
+<div id="menuModal" class="pay-modal">
+    <div class="pay-modal-content">
+        <h2 id="menuTitle" style="font-size:1.05rem;font-weight:700;margin-bottom:1.25rem;text-align:center;">Pilih Nominal</h2>
+        <div id="menuContainer"></div>
+        <button class="btn btn-outline" style="width:100%; justify-content:center; margin-top:1rem;" onclick="closeMenuModal()">Batal</button>
+    </div>
+</div>
+
+<div id="paymentModal" class="pay-modal">
+    <form id="paymentForm" class="pay-modal-content" action="{{ url('/pay/process') }}" method="POST" style="text-align:center; margin:0;">
+        @csrf
+        <div id="modalIcon" style="font-size:2.5rem;margin-bottom:0.875rem;">🛒</div>
+        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;">Konfirmasi Bayar</h2>
+        <p style="color:var(--text-muted);font-size:0.825rem;margin-bottom:0.875rem;">Pembelian: <b id="displayProduct" style="color:var(--text-main);">...</b></p>
+        <h1 id="displayPrice" style="color:var(--primary);font-size:1.75rem;font-weight:800;margin-bottom:0.875rem;">Rp 0</h1>
+        <input type="text" class="custom-input" placeholder="Nomor HP / ID Pelanggan" required>
+        <input type="hidden" name="product_name" id="inputProduct">
+        <input type="hidden" name="amount" id="inputAmount">
+        <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+            <button type="submit" class="btn btn-primary" style="flex:1; justify-content:center;">Bayar</button>
+            <button type="button" class="btn btn-outline" style="flex:1; justify-content:center;" onclick="closePaymentModal()">Kembali</button>
         </div>
-    </aside>
+    </form>
+</div>
+@endsection
 
-    <div class="main-area">
-        <header class="topbar">
-            <div class="topbar-left">
-                <h1>Mall Pembayaran</h1>
-                <p>Bayar tagihan dan beli pulsa dengan mudah</p>
-            </div>
-            <div class="topbar-right">
-                <div class="topbar-user">
-                    <div class="topbar-avatar">R</div>
-                    <span class="topbar-name">Pengguna</span>
-                </div>
-            </div>
-        </header>
-
-        <main class="page-content">
-            <p class="category-label">📱 Pulsa &amp; Paket Data</p>
-            <div class="product-grid">
-                <div class="product-card" onclick="openMenuModal('pulsa')">
-                    <div class="product-icon-wrap">📱</div>
-                    <div class="product-name">Isi Pulsa</div>
-                </div>
-                <div class="product-card" onclick="openMenuModal('data')">
-                    <div class="product-icon-wrap">🌐</div>
-                    <div class="product-name">Paket Data</div>
-                </div>
-            </div>
-
-            <p class="category-label">🏠 Tagihan Rumah</p>
-            <div class="product-grid">
-                <div class="product-card" onclick="openMenuModal('pln')">
-                    <div class="product-icon-wrap">⚡</div>
-                    <div class="product-name">Token PLN</div>
-                </div>
-                <div class="product-card" onclick="openMenuModal('internet')">
-                    <div class="product-icon-wrap">📡</div>
-                    <div class="product-name">Internet &amp; TV</div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <div id="menuModal" class="modal">
-        <div class="modal-content">
-            <h2 id="menuTitle" style="font-size:1.05rem;font-weight:700;margin-bottom:1.25rem;text-align:center;">Pilih Nominal</h2>
-            <div id="menuContainer"></div>
-            <button class="btn-cancel" onclick="closeMenuModal()">Batal</button>
-        </div>
-    </div>
-
-    <div id="paymentModal" class="modal">
-        <form id="paymentForm" class="modal-content" action="{{ url('/pay/process') }}" method="POST" style="text-align:center;">
-            @csrf
-            <div id="modalIcon" style="font-size:2.5rem;margin-bottom:0.875rem;">🛒</div>
-            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;">Konfirmasi Bayar</h2>
-            <p style="color:var(--text-muted);font-size:0.825rem;margin-bottom:0.875rem;">Pembelian: <b id="displayProduct" style="color:var(--text-main);">...</b></p>
-            <h1 id="displayPrice" style="color:var(--accent);font-size:1.75rem;font-weight:800;margin-bottom:0.875rem;">Rp 0</h1>
-            <input type="text" class="custom-input" placeholder="Nomor HP / ID Pelanggan" required>
-            <input type="hidden" name="product_name" id="inputProduct">
-            <input type="hidden" name="amount" id="inputAmount">
-            <button type="submit" class="btn-submit">Bayar Sekarang</button>
-            <button type="button" class="btn-cancel" onclick="closePaymentModal()">Kembali</button>
-        </form>
-    </div>
-
-    <script>
-        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
-        const productData = {
-            'pulsa': { title: '📱 Pilih Nominal Pulsa', icon: '📱', items: [{ name: 'Pulsa 20.000', price: 21500 }, { name: 'Pulsa 50.000', price: 51000 }, { name: 'Pulsa 100.000', price: 99500 }] },
-            'data':  { title: '🌐 Pilih Paket Data', icon: '🌐', items: [{ name: 'Paket Harian 2GB', price: 15000 }, { name: 'Paket Mingguan 10GB', price: 55000 }] },
-            'pln':   { title: '⚡ Pilih Token Listrik', icon: '⚡', items: [{ name: 'Token PLN 50.000', price: 52500 }, { name: 'Token PLN 100.000', price: 102500 }] },
-            'internet': { title: '📡 Bayar Internet', icon: '📡', items: [{ name: 'Indihome 30Mbps', price: 350000 }] }
-        };
-        function openMenuModal(key) {
-            const data = productData[key];
-            document.getElementById('menuTitle').innerText = data.title;
-            const container = document.getElementById('menuContainer');
-            container.innerHTML = '';
-            data.items.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'list-item-pay';
-                div.onclick = () => openPaymentModal(item.name, item.price, data.icon);
-                div.innerHTML = `<span class="list-item-name">${item.name}</span><span class="list-item-price">Rp ${item.price.toLocaleString('id-ID')}</span>`;
-                container.appendChild(div);
-            });
-            document.getElementById('menuModal').style.display = 'flex';
-        }
-        function openPaymentModal(name, price, icon) {
-            closeMenuModal();
-            document.getElementById('modalIcon').innerText = icon;
-            document.getElementById('displayProduct').innerText = name;
-            document.getElementById('displayPrice').innerText = 'Rp ' + price.toLocaleString('id-ID');
-            document.getElementById('inputProduct').value = name;
-            document.getElementById('inputAmount').value = price;
-            document.getElementById('paymentModal').style.display = 'flex';
-        }
-        function closeMenuModal() { document.getElementById('menuModal').style.display = 'none'; }
-        function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
-    </script>
-</body>
-</html>
-
+@section('scripts')
+<script>
+    const productData = {
+        'pulsa': { title: '📱 Pilih Nominal Pulsa', icon: '📱', items: [{ name: 'Pulsa 20.000', price: 21500 }, { name: 'Pulsa 50.000', price: 51000 }, { name: 'Pulsa 100.000', price: 99500 }] },
+        'data':  { title: '🌐 Pilih Paket Data', icon: '🌐', items: [{ name: 'Paket Harian 2GB', price: 15000 }, { name: 'Paket Mingguan 10GB', price: 55000 }] },
+        'pln':   { title: '⚡ Pilih Token Listrik', icon: '⚡', items: [{ name: 'Token PLN 50.000', price: 52500 }, { name: 'Token PLN 100.000', price: 102500 }] },
+        'internet': { title: '📡 Bayar Internet', icon: '📡', items: [{ name: 'Indihome 30Mbps', price: 350000 }] }
+    };
+    function openMenuModal(key) {
+        const data = productData[key];
+        document.getElementById('menuTitle').innerText = data.title;
+        const container = document.getElementById('menuContainer');
+        container.innerHTML = '';
+        data.items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'list-item-pay';
+            div.onclick = () => openPaymentModal(item.name, item.price, data.icon);
+            div.innerHTML = `<span class="list-item-name">${item.name}</span><span class="list-item-price">Rp ${item.price.toLocaleString('id-ID')}</span>`;
+            container.appendChild(div);
+        });
+        document.getElementById('menuModal').style.display = 'flex';
+    }
+    function openPaymentModal(name, price, icon) {
+        closeMenuModal();
+        document.getElementById('modalIcon').innerText = icon;
+        document.getElementById('displayProduct').innerText = name;
+        document.getElementById('displayPrice').innerText = 'Rp ' + price.toLocaleString('id-ID');
+        document.getElementById('inputProduct').value = name;
+        document.getElementById('inputAmount').value = price;
+        document.getElementById('paymentModal').style.display = 'flex';
+    }
+    function closeMenuModal() { document.getElementById('menuModal').style.display = 'none'; }
+    function closePaymentModal() { document.getElementById('paymentModal').style.display = 'none'; }
+</script>
+@endsection

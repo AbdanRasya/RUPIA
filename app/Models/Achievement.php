@@ -5,17 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Saving extends Model
+class Achievement extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
+        'type',
         'title',
-        'target_amount',
-        'current_amount',
-        'deadline',
-        'icon'
+        'description',
+        'earned_at'
     ];
 
     public function user()

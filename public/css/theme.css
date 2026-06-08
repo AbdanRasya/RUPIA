@@ -7,4 +7,24 @@
     --topbar-bg: #1E293B;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+    --sidebar-bg: #0B1120;
+    --sidebar-text: #94A3B8;
+    --sidebar-active-bg: rgba(255,255,255,0.1);
+    --sidebar-active-text: #FFFFFF;
+    --sidebar-hover-bg: rgba(255,255,255,0.06);
+    --primary: #059669; /* Darker green */
+    --primary-light: rgba(5, 150, 105, 0.2);
+    --primary-dark: #047857;
+    --danger: #EF4444;
+    --danger-light: rgba(239, 68, 68, 0.2);
+    --warning: #F59E0B;
+    --warning-light: rgba(245, 158, 11, 0.2);
 }
+
+/* Utilities */
+.text-primary { color: var(--primary); }
+.text-danger { color: var(--danger); }
+.text-warning { color: var(--warning); }
+.bg-primary { background-color: var(--primary); color: white; }
+.bg-danger { background-color: var(--danger); color: white; }
+.bg-warning { background-color: var(--warning); color: white; }
