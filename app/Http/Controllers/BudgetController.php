@@ -20,6 +20,29 @@ class BudgetController extends Controller
         $budgets = Budget::with('category')->where('user_id', $userId)->get();
         $categories = Category::where('user_id', $userId)->where('type', 'expense')->get();
 
+        // Jika user belum punya kategori pengeluaran, buatkan default
+        if ($categories->isEmpty()) {
+            $defaultCategories = [
+                ['name' => 'Makan & Minum', 'type' => 'expense', 'icon' => '🍔'],
+                ['name' => 'Transportasi', 'type' => 'expense', 'icon' => '🚗'],
+                ['name' => 'Belanja', 'type' => 'expense', 'icon' => '🛍️'],
+                ['name' => 'Tagihan & Utilitas', 'type' => 'expense', 'icon' => '🧾'],
+                ['name' => 'Hiburan', 'type' => 'expense', 'icon' => '🎬'],
+                ['name' => 'Kesehatan', 'type' => 'expense', 'icon' => '🏥'],
+                ['name' => 'Pendidikan', 'type' => 'expense', 'icon' => '📚'],
+            ];
+
+            foreach ($defaultCategories as $cat) {
+                Category::create([
+                    'user_id' => $userId,
+                    'name' => $cat['name'],
+                    'type' => $cat['type'],
+                    'icon' => $cat['icon']
+                ]);
+            }
+            $categories = Category::where('user_id', $userId)->where('type', 'expense')->get();
+        }
+
         // Hitung pengeluaran per budget
         foreach ($budgets as $budget) {
             $spent = Transaction::where('user_id', $userId)

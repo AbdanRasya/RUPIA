@@ -80,7 +80,7 @@
         </div>
 
         <div class="panel">
-            <h3 class="panel-title">Arus Kas (7 Hari Terakhir)</h3>
+            <h3 class="panel-title">Arus Grafik (7 Hari Terakhir)</h3>
             <div style="position: relative; height: 220px; width: 100%;">
                 <canvas id="cashflowChart"></canvas>
             </div>
