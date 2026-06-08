@@ -59,8 +59,9 @@ if (app()->environment('local')) {
 // ==========================================
 Route::middleware('auth')->group(function () {
     
-    // 1. Dashboard Utama
+    // 1. Dashboard Utama & Anti-Impuls
     Route::get('/', [DashboardController::class, 'index']);
+    Route::post('/toggle-anti-impuls', [DashboardController::class, 'toggleAntiImpulse'])->name('toggle.impuls');
 
     // 2. Top Up Saldo
     Route::get('/topup', [TopUpController::class, 'index']);

@@ -7,6 +7,7 @@
     <meta name="description" content="@yield('meta_description', 'Rupia membantu kamu mengelola keuangan harian, menabung, merencanakan masa depan, dan memantau transaksi dengan mudah.')">
     <meta name="theme-color" content="#00A550">
     <meta name="robots" content="index,follow">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap');
 

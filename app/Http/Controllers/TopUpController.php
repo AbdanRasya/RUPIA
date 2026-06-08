@@ -12,8 +12,37 @@ class TopUpController extends Controller
 {
     public function index()
     {
-        $categories = Category::where('user_id', Auth::id())->where('type', 'income')->get();
-        $wallets = Wallet::where('user_id', Auth::id())->get();
+        $userId = Auth::id();
+        $categories = Category::where('user_id', $userId)->where('type', 'income')->get();
+        $wallets = Wallet::where('user_id', $userId)->get();
+
+        if ($wallets->isEmpty()) {
+            $newWallet = Wallet::create([
+                'user_id' => $userId,
+                'name' => 'Dompet Utama',
+                'type' => 'cash',
+                'balance' => 0,
+                'icon' => '👛'
+            ]);
+            $wallets->push($newWallet);
+        }
+
+        if ($categories->isEmpty()) {
+            $defaultCategories = [
+                ['name' => 'Gaji', 'type' => 'income', 'icon' => '💰'],
+                ['name' => 'Uang Jajan', 'type' => 'income', 'icon' => '💵'],
+            ];
+            foreach ($defaultCategories as $cat) {
+                $newCat = Category::create([
+                    'user_id' => $userId,
+                    'name' => $cat['name'],
+                    'type' => $cat['type'],
+                    'icon' => $cat['icon']
+                ]);
+                $categories->push($newCat);
+            }
+        }
+
         return view('topup.index', compact('categories', 'wallets'));
     }
 

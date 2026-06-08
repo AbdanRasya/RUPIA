@@ -198,5 +198,57 @@
             });
         });
     }
+
+    // Chart.js Arus Kas
+    const ctx = document.getElementById('cashflowChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($labels) !!},
+                datasets: [
+                    {
+                        label: 'Pemasukan',
+                        data: {!! json_encode($incomeData) !!},
+                        borderColor: '#00A550',
+                        backgroundColor: 'rgba(0, 165, 80, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Pengeluaran',
+                        data: {!! json_encode($expenseData) !!},
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                if(value >= 1000000) return (value/1000000) + 'Jt';
+                                if(value >= 1000) return (value/1000) + 'k';
+                                return value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 </script>
 @endsection

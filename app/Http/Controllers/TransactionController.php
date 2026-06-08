@@ -12,8 +12,38 @@ class TransactionController extends Controller
 {
     public function create()
     {
-        $categories = Category::where('user_id', Auth::id())->where('type', 'expense')->get();
-        $wallets = Wallet::where('user_id', Auth::id())->get();
+        $userId = Auth::id();
+        $categories = Category::where('user_id', $userId)->where('type', 'expense')->get();
+        $wallets = Wallet::where('user_id', $userId)->get();
+
+        if ($wallets->isEmpty()) {
+            $newWallet = Wallet::create([
+                'user_id' => $userId,
+                'name' => 'Dompet Utama',
+                'type' => 'cash',
+                'balance' => 0,
+                'icon' => '👛'
+            ]);
+            $wallets->push($newWallet);
+        }
+
+        if ($categories->isEmpty()) {
+            $defaultCategories = [
+                ['name' => 'Makan & Minum', 'type' => 'expense', 'icon' => '🍔'],
+                ['name' => 'Transportasi', 'type' => 'expense', 'icon' => '🚗'],
+                ['name' => 'Belanja', 'type' => 'expense', 'icon' => '🛍️'],
+            ];
+            foreach ($defaultCategories as $cat) {
+                $newCat = Category::create([
+                    'user_id' => $userId,
+                    'name' => $cat['name'],
+                    'type' => $cat['type'],
+                    'icon' => $cat['icon']
+                ]);
+                $categories->push($newCat);
+            }
+        }
+
         return view('transaction.create', compact('categories', 'wallets'));
     }
 

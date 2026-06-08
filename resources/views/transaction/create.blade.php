@@ -73,7 +73,7 @@
         <div class="panel">
             <h3 style="font-size:0.9rem; font-weight:600; margin-bottom:0.75rem;">Mode Anti-Impuls</h3>
             <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                <input type="checkbox" id="impulseToggle" style="width:18px; height:18px;">
+                <input type="checkbox" id="impulseToggle" style="width:18px; height:18px;" {{ Auth::user()->is_anti_impulse_active ? 'checked' : '' }}>
                 <span style="font-size:0.85rem; color:var(--text-main);">Aktifkan untuk minta mikir 2x sebelum beli barang nggak penting.</span>
             </label>
         </div>
@@ -101,15 +101,30 @@
     const form = document.getElementById('expenseForm');
     const modal = document.getElementById('impulseModal');
     const impulseToggle = document.getElementById('impulseToggle');
+    let antiImpulseTempPass = false;
     
-    impulseToggle.checked = localStorage.getItem('antiImpulse') === 'true';
-    impulseToggle.addEventListener('change', e => localStorage.setItem('antiImpulse', e.target.checked));
+    impulseToggle.addEventListener('change', function() {
+        const isChecked = this.checked;
+        fetch('{{ route("toggle.impuls") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ is_active: isChecked })
+        })
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error:', error);
+            this.checked = !isChecked;
+        });
+    });
 
     form.addEventListener('submit', function(e) {
-        if (localStorage.getItem('antiImpulse') === 'true' && localStorage.getItem('antiImpulseTempPass') !== 'true') {
+        if (impulseToggle.checked && !antiImpulseTempPass) {
             e.preventDefault();
-            let amount = document.getElementById('amountInput').value;
-            let desc = document.getElementById('descInput').value;
+            let amount = document.getElementById('amountInput').value || 0;
+            let desc = document.getElementById('descInput').value || '...';
             document.getElementById('modalAmount').innerText = 'Rp ' + parseInt(amount).toLocaleString('id-ID');
             document.getElementById('modalDesc').innerText = desc;
             modal.style.display = 'flex';
@@ -118,11 +133,11 @@
 
     function cancelExpense() { 
         modal.style.display = 'none'; 
-        localStorage.removeItem('antiImpulseTempPass');
+        antiImpulseTempPass = false;
     }
     
     function forceSubmit() { 
-        localStorage.setItem('antiImpulseTempPass', 'true'); 
+        antiImpulseTempPass = true; 
         form.submit(); 
     }
 </script>

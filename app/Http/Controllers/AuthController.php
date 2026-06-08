@@ -48,6 +48,32 @@ class AuthController extends Controller
             'password' => Hash::make($request->password), // Password di-encrypt
         ]);
 
+        // --- BUAT DOMPET & KATEGORI DEFAULT ---
+        \App\Models\Wallet::create([
+            'user_id' => $user->id,
+            'name' => 'Dompet Utama',
+            'type' => 'cash',
+            'balance' => 0,
+            'icon' => '👛'
+        ]);
+
+        $defaultCategories = [
+            ['name' => 'Gaji', 'type' => 'income', 'icon' => '💰'],
+            ['name' => 'Uang Jajan', 'type' => 'income', 'icon' => '💵'],
+            ['name' => 'Makan & Minum', 'type' => 'expense', 'icon' => '🍔'],
+            ['name' => 'Transportasi', 'type' => 'expense', 'icon' => '🚗'],
+            ['name' => 'Belanja', 'type' => 'expense', 'icon' => '🛍️'],
+        ];
+
+        foreach ($defaultCategories as $cat) {
+            \App\Models\Category::create([
+                'user_id' => $user->id,
+                'name' => $cat['name'],
+                'type' => $cat['type'],
+                'icon' => $cat['icon']
+            ]);
+        }
+
         // Langsung login otomatis setelah daftar
         Auth::login($user);
 
