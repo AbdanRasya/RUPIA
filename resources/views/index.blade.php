@@ -12,14 +12,13 @@
         <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Verifikasi tambahan sebelum transaksi non-esensial.</p>
     </div>
     <label class="switch" style="width:36px; height:20px; position:relative; display:inline-block;">
-        <input type="checkbox" id="impulseToggle" style="opacity:0; width:0; height:0;">
-        <span class="slider" style="position:absolute; cursor:pointer; inset:0; background:var(--border-color); transition:.3s; border-radius:20px;"></span>
+        <input type="checkbox" id="impulseToggle" style="opacity:0; width:0; height:0;" {{ Auth::user()->is_anti_impulse_active ? 'checked' : '' }}>
+        <span class="slider" style="position:absolute; cursor:pointer; inset:0; transition:.3s; border-radius:20px;"></span>
     </label>
 </div>
 
 <div class="main-grid" style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem;">
     <section>
-        <!-- Balance Card -->
         <div style="background: linear-gradient(135deg, var(--primary) 0%, #0077B6 100%); color: #FFFFFF; border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 24px rgba(0,165,80,0.25); position: relative; overflow: hidden;">
             <div style="position:absolute; top:-40px; right:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.07);"></div>
             <div style="position:relative; z-index:1;">
@@ -52,7 +51,6 @@
             </div>
         </div>
 
-        <!-- AI Insight -->
         <div class="panel" style="background:var(--primary-light); border-color:var(--primary); display:flex; gap:1rem; align-items:flex-start;">
             <div style="font-size:1.5rem;">🤖</div>
             <div>
@@ -61,7 +59,6 @@
             </div>
         </div>
 
-        <!-- Quick Shortcuts -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.875rem; margin-bottom:1.5rem;">
             <a href="{{ url('/transfer') }}" class="panel" style="display:flex; flex-direction:column; align-items:center; padding:1.1rem 0.75rem; text-decoration:none; margin:0;">
                 <div style="width:40px; height:40px; background:var(--primary-light); border-radius:10px; display:flex; align-items:center; justify-content:center; color:var(--primary); margin-bottom:0.6rem;"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg></div>
@@ -81,7 +78,6 @@
             </a>
         </div>
 
-        <!-- Cashflow Chart -->
         <div class="panel">
             <h3 class="panel-title">Arus Kas (7 Hari Terakhir)</h3>
             <div style="position: relative; height: 220px; width: 100%;">
@@ -89,7 +85,6 @@
             </div>
         </div>
 
-        <!-- Recent Transactions -->
         <div class="panel">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
                 <h3 class="panel-title" style="margin:0;">Transaksi Terakhir</h3>
@@ -161,6 +156,7 @@
 
 @section('styles')
 <style>
+    .slider { background: var(--border-color); }
     .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background: white; transition: .3s; border-radius: 50%; }
     input:checked + .slider { background: var(--primary); }
     input:checked + .slider:before { transform: translateX(16px); }
@@ -170,50 +166,36 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Impulse Toggle
+    // Pastikan ID 'impulseToggle' benar-benar ada di HTML lu
     const impulseToggle = document.getElementById('impulseToggle');
-    if(impulseToggle) {
-        impulseToggle.checked = localStorage.getItem('antiImpulse') === 'true';
-        impulseToggle.addEventListener('change', e => localStorage.setItem('antiImpulse', e.target.checked));
-    }
 
-    // Chart
-    Chart.defaults.color = document.documentElement.getAttribute('data-theme') === 'dark' ? '#94A3B8' : '#6B7280';
-    const cashCtx = document.getElementById('cashflowChart').getContext('2d');
-    const chart = new Chart(cashCtx, {
-        type: 'line',
-        data: {
-            labels: {!! json_encode($labels ?? []) !!},
-            datasets: [
-                {
-                    label: 'Pemasukan',
-                    data: {!! json_encode($incomeData ?? []) !!},
-                    borderColor: '#00A550',
-                    backgroundColor: 'rgba(0, 165, 80, 0.1)',
-                    tension: 0.4,
-                    fill: true
+    if (impulseToggle) {
+        impulseToggle.addEventListener('change', function() {
+            const isChecked = this.checked;
+            
+            fetch('{{ route("toggle.impuls") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                {
-                    label: 'Pengeluaran',
-                    data: {!! json_encode($expenseData ?? []) !!},
-                    borderColor: '#EF4444',
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                    tension: 0.4,
-                    fill: true
+                body: JSON.stringify({ is_active: isChecked })
+            })
+            .then(async response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'top', labels: { boxWidth:12, font:{family:'Inter', size:11} } } },
-            scales: { y: { beginAtZero: true, grid: { color: 'rgba(150,150,150,0.1)' } }, x: { grid: { display: false } } }
-        }
-    });
-
-    window.addEventListener('themeChanged', () => {
-        Chart.defaults.color = document.documentElement.getAttribute('data-theme') === 'dark' ? '#94A3B8' : '#6B7280';
-        chart.update();
-    });
+                return response.json();
+            })
+            .then(data => {
+                console.log('Update berhasil:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.checked = !isChecked; // Revert if failed
+            });
+        });
+    }
 </script>
 @endsection

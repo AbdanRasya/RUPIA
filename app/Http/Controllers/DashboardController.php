@@ -78,4 +78,19 @@ class DashboardController extends Controller
 
         return view('index', compact('totalBalance', 'income', 'expense', 'healthScore', 'labels', 'incomeData', 'expenseData', 'recentTransactions', 'usdToIdr', 'btcToIdr', 'newsList'));
     }
+    public function toggleAntiImpulse(Request $request)
+    {
+        $user = Auth::user();
+        
+        if ($user) {
+            $user->is_anti_impulse_active = $request->boolean('is_active');
+            $user->save();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'is_active' => $user ? $user->is_anti_impulse_active : false,
+            'message' => ($user && $user->is_anti_impulse_active) ? 'Mode Anti-Impuls Diaktifkan!' : 'Mode Anti-Impuls Dimatikan!'
+        ]);
+    }
 }
