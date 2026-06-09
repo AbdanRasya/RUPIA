@@ -5,200 +5,181 @@
 
 @section('styles')
 <style>
-    /* ── CATEGORY ── */
-    .category-label { 
-        font-size: 0.85rem; 
-        font-weight: 700; 
-        text-transform: uppercase; 
-        letter-spacing: 1px; 
-        color: var(--text-main); 
-        margin: 2rem 0 1rem; 
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .category-label:first-child { margin-top: 0; }
-    .category-label span {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        background: var(--bg-page);
-        border-radius: 8px;
-        font-size: 0.9rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    }
 
-    /* ── PRODUCT GRID ── */
-    .payment-section {
-        background: var(--card-bg);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
-        margin-bottom: 2rem;
-    }
+.payment-banner{
+    background: var(--card-bg);
+    border:1px solid var(--border-color);
+    border-radius:20px;
+    padding:1.5rem;
+    margin-bottom:1.5rem;
+    box-shadow:var(--shadow-sm);
+}
 
-    .product-grid { 
-        display: grid; 
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
-        gap: 1rem; 
-    }
-    
-    @media (min-width: 640px) {
-        .product-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-    }
+.payment-banner h2{
+    margin:0;
+    font-size:1.4rem;
+    font-weight:700;
+    color:var(--text-main);
+}
 
-    .product-card {
-        background: transparent;
-        border: 1px solid transparent;
-        border-radius: var(--radius-md);
-        padding: 1rem 0.5rem;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    .product-card:hover { 
-        background: var(--bg-page);
-        border-color: var(--border-color);
-        transform: translateY(-4px); 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    }
+.payment-banner p{
+    margin:.5rem 0 0;
+    color:var(--text-muted);
+}
 
-    .product-icon-wrap { 
-        width: 56px; 
-        height: 56px; 
-        border-radius: 16px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        font-size: 1.75rem;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
-    
-    /* Beautiful Gradient Backgrounds for Icons */
-    .icon-blue { background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0284c7; }
-    .icon-green { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #16a34a; }
-    .icon-yellow { background: linear-gradient(135deg, #fef9c3, #fef08a); color: #ca8a04; }
-    .icon-purple { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); color: #9333ea; }
-    .icon-orange { background: linear-gradient(135deg, #ffedd5, #fed7aa); color: #ea580c; }
-    .icon-red { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626; }
-    .icon-teal { background: linear-gradient(135deg, #ccfbf1, #99f6e4); color: #0d9488; }
-    .icon-indigo { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4f46e5; }
+.category-label{
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+    margin:1.5rem 0 .8rem;
+    font-size:.95rem;
+    font-weight:700;
+    color:var(--text-main);
+}
 
-    .product-card:hover .product-icon-wrap {
-        transform: scale(1.08) rotate(-3deg);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    }
+.payment-section{
+    background:var(--card-bg);
+    border:1px solid var(--border-color);
+    border-radius:20px;
+    padding:1rem;
+    margin-bottom:1.5rem;
+    box-shadow:var(--shadow-sm);
+}
 
-    .product-name { 
-        font-size: 0.85rem; 
-        font-weight: 600; 
-        color: var(--text-main); 
-        line-height: 1.3;
-    }
+.product-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+    gap:1rem;
+}
 
-    /* ── MODALS ── */
-    .pay-modal { 
-        display: none; 
-        position: fixed; 
-        inset: 0; 
-        background: rgba(0,0,0,0.5); 
-        backdrop-filter: blur(4px); 
-        z-index: 1000; 
-        align-items: center; 
-        justify-content: center; 
-        opacity: 0; 
-        transition: opacity 0.2s ease; 
-    }
-    .pay-modal.show { opacity: 1; }
-    .pay-modal-content { 
-        background: var(--card-bg); 
-        border-radius: 20px; 
-        width: 90%; 
-        max-width: 400px; 
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); 
-        color: var(--text-main); 
-        overflow: hidden;
-        transform: translateY(20px) scale(0.95);
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .pay-modal.show .pay-modal-content { 
-        transform: translateY(0) scale(1); 
-    }
-    
-    .modal-header {
-        padding: 1.5rem;
-        text-align: center;
-        border-bottom: 1px solid var(--border-color);
-        background: var(--bg-page);
-        position: relative;
-    }
-    
-    .modal-close {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        color: var(--text-muted);
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-    .modal-close:hover { color: var(--danger); }
+.product-card{
+    background:#fff;
+    border:1px solid var(--border-color);
+    border-radius:16px;
+    padding:1rem;
+    text-align:center;
+    cursor:pointer;
+    transition:.2s;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:.75rem;
+    min-height:120px;
+}
 
-    .modal-body { padding: 1.5rem; }
+.product-card:hover{
+    transform:translateY(-3px);
+    border-color:var(--primary);
+}
 
-    .list-item-pay { 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        padding: 1rem; 
-        border: 1px solid var(--border-color); 
-        border-radius: 12px; 
-        margin-bottom: 0.75rem; 
-        cursor: pointer; 
-        transition: all 0.2s ease; 
-        background: var(--card-bg);
-    }
-    .list-item-pay:hover { 
-        border-color: var(--primary); 
-        background: var(--primary-light); 
-        transform: translateX(4px);
-    }
-    .list-item-name { font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
-    .list-item-price { font-weight: 700; color: var(--primary); font-size: 0.9rem; }
-    
-    .custom-input { 
-        width: 100%; 
-        padding: 1rem; 
-        border-radius: 12px; 
-        border: 1px solid var(--border-color); 
-        background: var(--bg-page); 
-        color: var(--text-main); 
-        margin: 1rem 0; 
-        outline: none; 
-        text-align: center; 
-        font-weight: 600; 
-        font-size: 1.05rem; 
-        transition: all 0.2s ease;
-    }
-    .custom-input:focus { 
-        border-color: var(--primary); 
-        box-shadow: 0 0 0 3px rgba(0,165,80,0.1); 
-    }
+.product-icon-wrap{
+    width:56px;
+    height:56px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.6rem;
+    background:#f5f5f5;
+}
+
+.product-name{
+    font-size:.85rem;
+    font-weight:600;
+    color:var(--text-main);
+}
+
+.icon-blue,
+.icon-green,
+.icon-yellow,
+.icon-purple,
+.icon-orange,
+.icon-red,
+.icon-teal,
+.icon-indigo{
+    background:#f5f7fa;
+    color:#333;
+}
+
+.pay-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    z-index:1000;
+    justify-content:center;
+    align-items:center;
+}
+
+.pay-modal-content{
+    width:90%;
+    max-width:420px;
+    background:var(--card-bg);
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.modal-header{
+    padding:1.2rem;
+    border-bottom:1px solid var(--border-color);
+    position:relative;
+}
+
+.modal-body{
+    padding:1.2rem;
+}
+
+.modal-close{
+    position:absolute;
+    top:10px;
+    right:15px;
+    border:none;
+    background:none;
+    cursor:pointer;
+    font-size:1.3rem;
+}
+
+.list-item-pay{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:.9rem;
+    border:1px solid var(--border-color);
+    border-radius:12px;
+    margin-bottom:.7rem;
+    cursor:pointer;
+}
+
+.list-item-pay:hover{
+    border-color:var(--primary);
+}
+
+.list-item-name{
+    font-weight:600;
+}
+
+.list-item-price{
+    color:var(--primary);
+    font-weight:700;
+}
+
+.custom-input{
+    width:100%;
+    padding:.9rem;
+    border-radius:12px;
+    border:1px solid var(--border-color);
+    margin:1rem 0;
+}
 </style>
 @endsection
 
 @section('content')
+
+<div class="payment-banner">
+    <h2>Pembayaran & Tagihan</h2>
+    <p>Semua kebutuhan pembayaran dalam satu halaman.</p>
+</div>
 
 <h3 class="category-label"><span>📱</span> Pulsa &amp; Paket Data</h3>
 <div class="payment-section">
