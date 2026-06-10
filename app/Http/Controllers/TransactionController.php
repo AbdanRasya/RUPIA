@@ -95,6 +95,6 @@ class TransactionController extends Controller
         $wallet->balance -= $request->amount;
         $wallet->save();
 
-        return redirect('/')->with('success', 'Pengeluaran berhasil dicatat! Saldo ' . $wallet->name . ' berkurang.');
+        return redirect('/dashboard')->with('success', 'Pengeluaran berhasil dicatat! Saldo ' . $wallet->name . ' berkurang.');
     }
 }

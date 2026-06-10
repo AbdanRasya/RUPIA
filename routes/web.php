@@ -17,6 +17,16 @@ use App\Http\Controllers\Api\SavingApiController;
 */
 
 // ==========================================
+// Rute Home / Landing Page
+// ==========================================
+Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect('/dashboard');
+    }
+    return view('welcome');
+})->name('home');
+
+// ==========================================
 // AUTH (PRODUCTION-SAFE)
 // ==========================================
 Route::middleware('guest')->group(function () {
@@ -49,7 +59,7 @@ if (app()->environment('local')) {
 
         Auth::login($user);
 
-        return redirect('/');
+        return redirect('/dashboard');
     })->name('dev.auto-login');
 }
 
@@ -60,7 +70,7 @@ if (app()->environment('local')) {
 Route::middleware('auth')->group(function () {
     
     // 1. Dashboard Utama & Anti-Impuls
-    Route::get('/', [DashboardController::class, 'index']);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/toggle-anti-impuls', [DashboardController::class, 'toggleAntiImpulse'])->name('toggle.impuls');
 
     // 2. Top Up Saldo

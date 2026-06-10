@@ -78,6 +78,6 @@ class TopUpController extends Controller
         $wallet->balance += $request->amount;
         $wallet->save();
 
-        return redirect('/')->with('success', 'Pemasukan berhasil dicatat! Saldo ' . $wallet->name . ' bertambah.');
+        return redirect('/dashboard')->with('success', 'Pemasukan berhasil dicatat! Saldo ' . $wallet->name . ' bertambah.');
     }
 }

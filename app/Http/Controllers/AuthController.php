@@ -77,7 +77,7 @@ class AuthController extends Controller
         // Langsung login otomatis setelah daftar
         Auth::login($user);
 
-        return redirect('/');
+        return redirect('/dashboard');
     }
 
     public function logout(Request $request) {
