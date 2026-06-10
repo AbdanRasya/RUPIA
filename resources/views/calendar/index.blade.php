@@ -1,175 +1,292 @@
 @extends('layouts.app')
 @section('title', 'Kalender Keuangan')
-@section('header_title', 'Kalender Keuangan')
+@section('header_title', 'Aktivitas Bulanan')
 @section('header_subtitle', 'Pantau aktivitas transaksi Anda dalam sebulan')
 
 @section('styles')
+@section('styles')
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+
 <style>
-    .calendar-container {
-        background: var(--card-bg);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--border-color);
-        margin-bottom: 2rem;
+
+.calendar-container{
+    background:var(--card-bg);
+    border-radius:20px;
+    padding:1.5rem;
+    border:1px solid var(--border-color);
+    box-shadow:0 10px 30px rgba(0,0,0,.05);
+}
+
+/* ===== STAT CARDS ===== */
+
+.calendar-stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1rem;
+    margin-bottom:1.5rem;
+}
+
+.stat-card{
+    background:var(--card-bg);
+    border:1px solid var(--border-color);
+    border-radius:18px;
+    padding:1.25rem;
+    transition:.25s;
+    box-shadow:0 2px 10px rgba(0,0,0,.03);
+}
+
+.clickable-card{
+    text-decoration:none;
+    color:inherit;
+    display:block;
+    cursor:pointer;
+}
+
+.clickable-card:hover{
+    transform:translateY(-4px);
+}
+
+.clickable-card span,
+.clickable-card h3{
+    color:inherit;
+}
+
+.stat-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 12px 25px rgba(0,0,0,.08);
+}
+
+.stat-card span{
+    display:block;
+    font-size:.8rem;
+    color:var(--text-muted);
+    margin-bottom:.5rem;
+}
+
+.stat-card h3{
+    font-size:1.5rem;
+    font-weight:800;
+}
+
+.income{
+    border-left:5px solid var(--primary);
+}
+
+.expense{
+    border-left:5px solid var(--danger);
+}
+
+.balance{
+    border-left:5px solid var(--accent);
+}
+
+.transaction{
+    border-left:5px solid var(--warning);
+}
+
+.income h3{
+    color:var(--primary);
+}
+
+.expense h3{
+    color:var(--danger);
+}
+
+.balance h3{
+    color:var(--accent);
+}
+
+.transaction h3{
+    color:var(--warning);
+}
+
+/* ===== FULLCALENDAR ===== */
+
+.fc{
+    font-family:'Inter',sans-serif;
+}
+
+.fc .fc-toolbar.fc-header-toolbar{
+    margin-bottom:1.5rem;
+}
+
+.fc-toolbar-title{
+    font-size:1.6rem !important;
+    font-weight:800 !important;
+    color:var(--text-main);
+}
+
+/* BUTTON */
+
+.fc .fc-button{
+    border:none !important;
+    border-radius:12px !important;
+    padding:.65rem 1rem !important;
+    font-weight:600 !important;
+    transition:.2s;
+}
+
+.fc .fc-button-primary{
+    background:var(--bg-page) !important;
+    color:var(--text-main) !important;
+}
+
+.fc .fc-button-primary:hover{
+    transform:translateY(-2px);
+}
+
+.fc .fc-button-primary.fc-button-active,
+.fc .fc-button-primary:active{
+    background:var(--primary) !important;
+    color:#fff !important;
+}
+
+/* HEADER HARI */
+
+.fc-theme-standard th{
+    background:#f8fafc;
+    border:none !important;
+    padding:14px 0;
+    color:var(--text-muted);
+    font-weight:700;
+    text-transform:uppercase;
+    font-size:.75rem;
+}
+
+/* GRID */
+
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid{
+    border-color:#edf2f7 !important;
+}
+
+.fc-daygrid-day{
+    transition:.2s;
+}
+
+.fc-daygrid-day:hover{
+    background:#f8fafc;
+}
+
+/* TANGGAL */
+
+.fc .fc-daygrid-day-number{
+    font-weight:700;
+    color:var(--text-main);
+    margin:6px;
+    width:34px;
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+}
+
+.fc-day-today{
+    background:transparent !important;
+}
+
+.fc-day-today .fc-daygrid-day-number{
+    background:var(--primary);
+    color:white;
+    box-shadow:0 0 0 6px rgba(0,165,80,.12);
+}
+
+/* EVENT */
+
+.fc-event{
+    border:none !important;
+    border-radius:8px !important;
+    padding:4px 8px !important;
+    font-size:.72rem !important;
+    font-weight:700 !important;
+    transition:.2s;
+}
+
+.fc-event:hover{
+    transform:translateY(-2px);
+}
+
+.fc-event-title{
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* MORE LINK */
+
+.fc-daygrid-more-link{
+    color:var(--primary);
+    font-weight:700;
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+    .calendar-stats{
+        grid-template-columns:repeat(2,1fr);
     }
 
-    /* Reset some table styles that might conflict with app layout */
-    #calendar table { margin: 0; border-collapse: collapse; }
-    
-    /* Header Toolbar Styling */
-    .fc .fc-toolbar.fc-header-toolbar {
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px dashed var(--border-color);
-    }
-    .fc .fc-toolbar-title { 
-        font-size: 1.25rem; 
-        font-weight: 800; 
-        color: var(--text-main); 
-        letter-spacing: -0.5px;
+}
+
+@media(max-width:768px){
+
+    .fc-toolbar{
+        flex-direction:column;
+        gap:1rem;
     }
 
-    /* Buttons */
-    .fc .fc-button-primary { 
-        background: var(--bg-page); 
-        border-color: var(--border-color); 
-        color: var(--text-main);
-        font-weight: 600;
-        text-transform: capitalize;
-        border-radius: 8px;
-        transition: all 0.2s;
-        box-shadow: none !important;
-    }
-    .fc .fc-button-primary:hover {
-        background: var(--border-color);
-        border-color: var(--text-muted);
-        color: var(--text-main);
-    }
-    .fc .fc-button-primary:not(:disabled):active, 
-    .fc .fc-button-primary:not(:disabled).fc-button-active { 
-        background: var(--primary); 
-        border-color: var(--primary); 
-        color: #fff;
+    .fc-toolbar-title{
+        font-size:1.2rem !important;
     }
 
-    /* Grid and Cells */
-    .fc-theme-standard .fc-scrollgrid,
-    .fc-theme-standard td, 
-    .fc-theme-standard th { 
-        border-color: var(--border-color); 
-    }
-    .fc-theme-standard th {
-        padding: 0.75rem 0;
-        background: var(--bg-page);
-        font-weight: 700;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom-width: 2px;
+    .fc-daygrid-day-frame{
+        min-height:70px !important;
     }
 
-    .fc-daygrid-day-frame {
-        min-height: 100px !important;
-        padding: 4px;
-        transition: background 0.2s;
-    }
-    .fc-daygrid-day-frame:hover {
-        background: rgba(0,0,0,0.01);
+}
+
+@media(max-width:600px){
+
+    .calendar-stats{
+        grid-template-columns:1fr;
     }
 
-    /* Day Numbers */
-    .fc .fc-daygrid-day-number {
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--text-main);
-        padding: 8px;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        margin: 4px;
-        text-decoration: none !important;
-    }
-    
-    .fc .fc-day-today .fc-daygrid-day-number { 
-        background: var(--primary); 
-        color: white;
-    }
-    .fc-day-today { background: transparent !important; } /* remove default yellow bg */
+}
 
-    /* Events */
-    .fc-event { 
-        border: none; 
-        padding: 4px 6px; 
-        border-radius: 6px; 
-        font-size: 0.75rem; 
-        font-weight: 600; 
-        cursor: pointer; 
-        margin-bottom: 4px !important;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .fc-event:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .fc-event-main {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    /* Fix for mobile/small screens */
-    @media (max-width: 768px) {
-        .fc .fc-toolbar.fc-header-toolbar { flex-direction: column; gap: 1rem; }
-        .fc-daygrid-day-frame { min-height: 70px !important; }
-        .fc .fc-daygrid-day-number { font-size: 0.8rem; width: 24px; height: 24px; padding: 0; }
-        .fc-event { font-size: 0.65rem; padding: 2px 4px; }
-    }
 </style>
 @endsection
 
 @section('content')
-<div class="calendar-container">
-    <div id='calendar'></div>
-</div>
-@endsection
+@section('content')
 
-@section('scripts')
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/id.js'></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            locale: 'id',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,dayGridWeek'
-            },
-            height: 'auto',
-            contentHeight: 'auto',
-            events: '/api/calendar/events',
-            eventDidMount: function(info) {
-                // Determine event style based on properties (fallback for older events)
-                // In FullCalendar v5, you can use backgroundColor passed from API.
-                
-                // Add tooltip
-                if(info.event.extendedProps.description) {
-                    info.el.title = info.event.title + " - " + info.event.extendedProps.description;
-                } else {
-                    info.el.title = info.event.title;
-                }
-            }
-        });
-        calendar.render();
-    });
-</script>
+<div class="calendar-stats">
+
+    <div class="stat-card income">
+        <span>Pemasukan Bulan Ini</span>
+        <h3>Rp {{ number_format($totalIncome ?? 0, 0, ',', '.') }}</h3>
+    </div>
+
+    <div class="stat-card expense">
+        <span>Pengeluaran Bulan Ini</span>
+        <h3>Rp {{ number_format($totalExpense ?? 0, 0, ',', '.') }}</h3>
+    </div>
+
+    <div class="stat-card balance">
+        <span>Saldo Bersih</span>
+        <h3>Rp {{ number_format($totalBalance ?? 0, 0, ',', '.') }}</h3>
+    </div>
+
+    <a href="{{ url('/history') }}" class="stat-card transaction clickable-card">
+    <span>Total Transaksi</span>
+    <h3>{{ $totalTransactions ?? 0 }}</h3>
+</a>
+
+</div>
+
+<div class="calendar-container">
+    <div id="calendar"></div>
+</div>
+
 @endsection
