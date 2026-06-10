@@ -84,14 +84,15 @@
 <div id="impulseModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(5px); z-index:1000; align-items:center; justify-content:center;">
     <div class="panel" style="max-width:440px; text-align:center; border:2px solid var(--warning); margin:0;">
         <div style="font-size:3.5rem; margin-bottom:0.875rem;">🚨</div>
-        <h2 style="color:var(--warning); margin-bottom:0.875rem; font-size:1.2rem;">Tunggu Dulu!</h2>
-        <p style="color:var(--text-main); margin-bottom:0.4rem; font-size:0.9rem;">Kamu mau ngeluarin uang sebesar:</p>
+        <h2 style="color:var(--warning); margin-bottom:0.875rem; font-size:1.2rem;">Tapi, Tunggu Dulu!</h2>
+        <p style="color:var(--text-main); margin-bottom:0.4rem; font-size:0.9rem;">Kamu ngeluarin uang sebesar:</p>
         <h1 id="modalAmount" style="color:var(--danger); margin-bottom:0.4rem; font-size:1.75rem; font-weight:800;">Rp 0</h1>
         <p style="color:var(--text-main); margin-bottom:1.25rem; font-size:0.9rem;">hanya untuk <b><span id="modalDesc">...</span></b>?</p>
         <p style="color:var(--text-muted); font-size:0.825rem; margin-bottom:1.75rem; line-height:1.6;">Mode Anti-Impuls mendeteksi pengeluaran ini. Apakah ini benar-benar kebutuhan, atau cuma keinginan sesaat?</p>
         
-        <button type="button" class="btn btn-primary" style="width:100%; padding:0.875rem; justify-content:center;" onclick="cancelExpense()">Batalin Aja Deh (Nabung) 🛡️</button>
-        <button type="button" style="background:transparent; color:var(--text-muted); padding:0.875rem; border:none; font-weight:600; width:100%; cursor:pointer; margin-top:0.25rem; text-decoration:underline;" onclick="forceSubmit()">Iya gapapa, tetep beli 😔</button>
+        <button type="button" class="btn btn-primary" style="width:100%; padding:0.875rem; justify-content:center;" onclick="cancelExpense()"> batal  🛡️</button>
+        <button type="button" style="background:transparent; color:var(--text-muted); padding:0.875rem; border:none; font-weight:600; width:100%; cursor:pointer; margin-top:0.25rem; text-decoration:underline;" onclick="forceSubmit()">iya gapapa, besok nabung lagi😔</button>
+        
     </div>
 </div>
 @endsection

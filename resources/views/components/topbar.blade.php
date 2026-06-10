@@ -27,7 +27,7 @@
                 <a href="{{ url('/wallets') }}">Dompet Saya</a>
                 <a href="{{ url('/categories') }}">Kategori</a>
                 <a href="{{ url('/statistik') }}">Statistik</a>
-                <a href="{{ url('/calendar') }}">Kalender</a>
+                <a href="{{ url('/calendar') }}">Aktifitas Bulanan</a>
                 <a href="{{ url('/reminders') }}">Pengingat</a>
                 <a href="{{ url('/achievements') }}">Pencapaian</a>
                 <div class="dropdown-divider"></div>

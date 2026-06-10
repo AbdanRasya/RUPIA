@@ -167,7 +167,6 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Pastikan ID 'impulseToggle' benar-benar ada di HTML lu
     const impulseToggle = document.getElementById('impulseToggle');
 
     if (impulseToggle) {
